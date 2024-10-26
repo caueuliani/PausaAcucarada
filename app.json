@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "PausaAcucarada",
+    "sdkversion": "~51.0.28",
+    "name": "Pausa Açucarada",
     "slug": "PausaAcucarada",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/PausaAcucaradaMascote.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
