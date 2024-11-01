@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "946384528770",
+    "project_id": "pausa-acucarada",
+    "storage_bucket": "pausa-acucarada.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946384528770:android:e948a4fa4834cc843e5b9b",
+        "android_client_info": {
+          "package_name": "com.caueuliani.PausaAcucarada"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "946384528770-pusqhlbver2c59kr5gr95fndsrsch6q2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.caueuliani.PausaAcucarada",
+            "certificate_hash": "42ad44c42fe69aef45fd5389803c1f1f5375187a"
+          }
+        },
+        {
+          "client_id": "946384528770-2qkpp13d2gmbkvd916alqh5nrk6lvfum.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtEv9eAiARhFwBCXsUEBa3-URDj7zb198"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "946384528770-2qkpp13d2gmbkvd916alqh5nrk6lvfum.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

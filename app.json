@@ -1,8 +1,25 @@
 {
   "expo": {
+    "extra": {
+      "firebaseConfig": {
+        "apiKey": "AIzaSyD0ywAMYzqawGGwIc2Kn5IyFGovK9tjETo",
+        "authDomain": "pausa-acucarada.firebaseapp.com",
+        "projectId": "pausa-acucarada",
+        "storageBucket": "pausa-acucarada.firebasestorage.app",
+        "messagingSenderId": "1:946384528770:web:420b0d3ed12ac0813e5b9b",
+        "appId": "G-EZKV331RFW"
+      },
+      "AndroidClientId": "946384528770-pusqhlbver2c59kr5gr95fndsrsch6q2.apps.googleusercontent.com",
+      "IosClientID": "946384528770-2qkpp13d2gmbkvd916alqh5nrk6lvfum.apps.googleusercontent.com",
+      "WebClientId": "946384528770-2qkpp13d2gmbkvd916alqh5nrk6lvfum.apps.googleusercontent.com",
+      "eas": {
+        "projectId": "29ff40c7-fdbd-463f-b799-3e646a0039e3"
+      }
+    },
     "sdkversion": "~51.0.28",
     "name": "Pausa Açucarada",
     "slug": "PausaAcucarada",
+    "scheme": "pausaacucarada",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/PausaAcucaradaMascote.png",
@@ -13,16 +30,18 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.caueuliani.PausaAcucarada"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.caueuliani.PausaAcucarada"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/PausaAcucaradaMascote.png"
     }
   }
 }
