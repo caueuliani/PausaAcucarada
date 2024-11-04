@@ -1,95 +1,43 @@
-import React, { useState } from 'react';
-import { View, Image, Button, Text, Alert } from 'react-native';
-import Constants from 'expo-constants';
+import React, { useEffect, useState } from 'react';
+import { View, Image, Button, Text, Alert, Platform  } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { getAuth, GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
+import { GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword } from 'firebase/auth';
 import { TextInput } from 'react-native-gesture-handler';
-
-import { makeRedirectUri } from 'expo-auth-session';
+import { auth, useGoogleAuthRequest } from '../config/authConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
+  const { request, promptAsync } = useGoogleAuthRequest();
+
   const [emailLogin, setEmailLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const AndroidClientId = Constants.expoConfig?.extra?.androidClientId;
-  const IosClientId = Constants.expoConfig?.extra?.IosClientId;
-  const WebClientId = Constants.expoConfig?.extra?.WebClientId;
-  const apiKey = Constants.expoConfig?.extra?.firebaseConfig?.apiKey;
-  const authDomain = Constants.expoConfig?.extra?.firebaseConfig?.authDomain;
-  const projectId = Constants.expoConfig?.extra?.firebaseConfig?.projectId;
-  const storageBucket = Constants.expoConfig?.extra?.firebaseConfig?.storageBucket;
-  const messagingSenderId = Constants.expoConfig?.extra?.firebaseConfig?.messagingSenderId;
-  const appId = Constants.expoConfig?.extra?.firebaseConfig?.appId;
-  const measurementId = Constants.expoConfig?.extra?.firebaseConfig?.measurementId;
+  
 
-  const firebaseConfig = {
-    apiKey: apiKey,
-    authDomain: authDomain,
-    projectId: projectId,
-    storageBucket: storageBucket,
-    messagingSenderId: messagingSenderId,
-    appId: appId,
-    measurementId: measurementId,
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  //const redirectUriLocal = 'https://auth.expo.io/@caueuliani/PausaAcucarada';
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: AndroidClientId,
-    iosClientId: IosClientId,
-    webClientId: WebClientId,
-    redirectUri: makeRedirectUri({
-      scheme: 'https',
-      path: '/@caueuliani/PausaAcucarada',
-    }),
-    scopes:  ['openid', 'profile', 'email']
-
-  });
-
-  const handleEmailLogin = () => {
-    if(email !== '' && senha !== '') {
-      signInWithEmailAndPassword(auth, email, senha)
-      .then((userCredential) => {
+  const handleEmailLogin = async () => {
+    if (email !== '' && senha !== '') {
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
-        Alert.alert('Login com sucesso', 'Login efetuado com sucesso! Indo para a Home');
         setIsLoggedIn(true);
-        console.log("user logado");
-        setTimeout(() => {
-          navigation.navigate('Home');
-        }, 100);
-      })
-      .catch((error) => {
+        showAlert('Login Bem-sucedido', 'Seja bem-vindo(a)!', () => navigation.navigate('Profile'));
+      } catch (error) {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-        if(errorCode === 'auth/invalid-credential') {
-          Alert.alert(
-            'Usuário não encontrado',
-            'Nenhum usuário encontrado com esse email. Você gostaria de se cadastrar?',
-            [
-              {
-                text: 'Cancelar',
-                style: 'cancel',
-              },
-              {
-                text: 'Cadastrar',
-                onPress: () => navigation.navigate('Registre-se'),
-              },
-            ]
-          );
+        if (errorCode === 'auth/invalid-credential') {
+          showAlertWithCallback('Usuário não encontrado',
+              'Nenhum usuário encontrado com esse email. Você gostaria de se cadastrar?',
+            ()=> navigation.navigate('Register'),
+            ()=> console.log('Verifique seu usuário e/ou Senha'))
         } else {
-          Alert.alert('Erro', errorMessage);
+          showAlert('Erro', errorMessage);
         }
-      });
-    } else {
-      Alert.alert('Erro', 'Preencha todos os campos.');
-    }
-  };
+      }
+    } else {      
+        showAlert('Erro', 'Preencha todos os campos.');
+      }
+  };  
 
   const userLogin = async () => {
     if (request) {
@@ -97,37 +45,52 @@ const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
         const result = await promptAsync();
         if (result.type === 'success') {
           const accessToken  = result.authentication.accessToken;
+          console.log(result, 'result, cade os dados do user logado?');
           if(accessToken) {
             const credential = GoogleAuthProvider.credential(null, accessToken);
             const userCredential = await signInWithCredential(auth, credential);
+            console.log(userCredential, 'userCredential');
             setIsLoggedIn(true);
-            Alert.alert(
-              'Login com sucesso',
-              'Você foi logado com sucesso!',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => console.log('OK pressionado'),
-                },
-              ]
-            );
-            setTimeout(() => {
-              navigation.navigate('Home');
-            }, 100);
+            showAlert('Login Bem-sucedido', 'Seja bem-vindo(a)!', () => navigation.navigate('Profile'));
           }
           else {
             console.error('ID Token não encontrado:', result.authentication);
           }
         }
         else {
-          console.log('Login cancelado pelo usuário');
+          showAlert('Login Cancelado', 'Login cancelado pelo usuário');
         }
       } catch (error) {
         console.error('Erro ao chamar promptAsync:', error);
-        Alert.alert('Erro', 'Não foi possível fazer login. Tente novamente.');
+        showAlert('Erro', 'Não foi possível fazer login. Tente novamente.');
+      }
+    }
+  };
+
+  const showAlertWithCallback = (title, message, onPressOk = () => {}, onPressCancel = () => {}) => {
+    if (Platform.OS === 'web') {
+      const confirmacao =window.confirm(message);
+      if(confirmacao) { 
+        onPressOk();
+      }
+      else{
+        window.alert('Verifique seu usuário e/ou Senha');
       }
     } else {
-      console.log('Request não está pronta ainda');
+      Alert.alert(
+        title, 
+        message, [
+          { text: 'OK', onPress: onPressOk },
+          { text: 'Não', onPress: onPressCancel, style: 'cancel' }
+        ]);
+    }
+  };
+
+  const showAlert = (title, message, onPressOk = () => {}) => {
+    if (Platform.OS === 'web') {
+      window.alert(message);
+    } else {
+      Alert.alert(title, message, [{ text: 'OK', onPress: onPressOk }]);
     }
   };
 
@@ -156,7 +119,7 @@ const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
                 placeholder="Senha"
                 secureTextEntry
               />
-              <Button title="Login" onPress={(handleEmailLogin)} />
+              <Button title="Login" onPress={handleEmailLogin} />
             </View>
           )
         }

@@ -38,7 +38,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.caueuliani.PausaAcucarada"
+      "package": "com.caueuliani.PausaAcucarada",
+      "config": {
+        "googleSignIn": {
+          "apiKey": "AIzaSyCtEv9eAiARhFwBCXsUEBa3-URDj7zb198",
+          "certificateHash": "42ad44c42fe69aef45fd5389803c1f1f5375187a",
+          "androidClientId": "946384528770-pusqhlbver2c59kr5gr95fndsrsch6q2.apps.googleusercontent.com"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/PausaAcucaradaMascote.png"
