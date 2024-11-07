@@ -2,8 +2,7 @@ import Constants from 'expo-constants';
 import * as Google from 'expo-auth-session/providers/google';
 import { getAuth } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 import { makeRedirectUri } from 'expo-auth-session';
 
@@ -30,18 +29,29 @@ import { makeRedirectUri } from 'expo-auth-session';
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  //const redirectUriLocal = 'https://auth.expo.io/@caueuliani/PausaAcucarada';
+  let RedirectUri;
   export const useGoogleAuthRequest = () => {
+
+    if(Platform.OS === 'web'){
+      RedirectUri = makeRedirectUri({
+        scheme: 'pausaacucarada',
+        useProxy: true,
+        //path: '/@caueuliani/PausaAcucarada',
+      })
+    }
+    else {
+      RedirectUri = makeRedirectUri({
+        scheme: 'pausaacucarada',
+        useProxy: true,
+        path: '/@caueuliani/PausaAcucarada',
+      })
+    }
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: AndroidClientId,
     iosClientId: IosClientId,
     webClientId: WebClientId,
-    redirectUri: makeRedirectUri({
-      scheme: 'pausaacucarada',
-      useProxy: true,
-      //path: '/@caueuliani/PausaAcucarada',
-    }),
+    redirectUri: RedirectUri,
     scopes:  ['openid', 'profile', 'email']
 
   });

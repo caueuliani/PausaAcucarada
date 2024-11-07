@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
@@ -37,6 +37,7 @@ const AuthStack = ({ setIsLoggedIn }) => {
 
 const DrawerMenu = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigationRef = React.useRef();
 
   const checkUserSession = async () => {
     const auth = getAuth();
@@ -54,14 +55,22 @@ const DrawerMenu = () => {
     checkAuthentication();
   }, []);
 
+  useEffect(() => {
+    // Redireciona para 'Profile' após o login bem-sucedido
+    if (isLoggedIn && navigationRef.current) {
+      navigationRef.current.navigate('Profile');
+    }
+  }, [isLoggedIn]);
+
+
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       {isLoggedIn ? (
-      <Drawer.Navigator initialRouteName="Home">
+      <Drawer.Navigator>
         <Drawer.Screen name="Home" component={Home} />
-        <Drawer.Screen name="Perfil" component={Profile} />
+        <Drawer.Screen name="Profile" component={Profile} />
         <Drawer.Screen name="Carrinho" component={Cart} />
-        <Drawer.Screen name="Cardápio" component={Menu} />
+        <Drawer.Screen name="Cardapio" component={Menu} />
         <Drawer.Screen name="Main" component={MainStack} />
       </Drawer.Navigator>
       )

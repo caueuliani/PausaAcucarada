@@ -1,19 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, Button, Text, Alert, Platform  } from 'react-native';
+import { View, Image, Button, Text, Alert, Platform, TouchableOpacity  } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword } from 'firebase/auth';
 import { TextInput } from 'react-native-gesture-handler';
 import { auth, useGoogleAuthRequest } from '../config/authConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
   const { request, promptAsync } = useGoogleAuthRequest();
-
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [emailLogin, setEmailLogin] = useState(false);
   const [email, setEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [senha, setSenha] = useState('');
   
+  const handleAsyncSaveUserinfo = async (email, userName) => {
+    await AsyncStorage.setItem('email', email);
+    await AsyncStorage.setItem('userName', userName);
+  }
 
   const handleEmailLogin = async () => {
     if (email !== '' && senha !== '') {
@@ -21,6 +28,7 @@ const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, senha);
         const user = userCredential.user;
         setIsLoggedIn(true);
+        handleAsyncSaveUserinfo(email, "");
         showAlert('Login Bem-sucedido', 'Seja bem-vindo(a)!', () => navigation.navigate('Profile'));
       } catch (error) {
         const errorCode = error.code;
@@ -39,19 +47,20 @@ const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
       }
   };  
 
-  const userLogin = async () => {
+  const userGoogleLogin = async () => {
     if (request) {
       try {
         const result = await promptAsync();
         if (result.type === 'success') {
           const accessToken  = result.authentication.accessToken;
-          console.log(result, 'result, cade os dados do user logado?');
           if(accessToken) {
             const credential = GoogleAuthProvider.credential(null, accessToken);
             const userCredential = await signInWithCredential(auth, credential);
-            console.log(userCredential, 'userCredential');
+            setEmail(userCredential.user.email);
+            setUserName(userCredential.user.displayName);
             setIsLoggedIn(true);
-            showAlert('Login Bem-sucedido', 'Seja bem-vindo(a)!', () => navigation.navigate('Profile'));
+            handleAsyncSaveUserinfo(userCredential.user.email, userCredential.user.displayName);
+            showAlert('Login Bem-sucedido', 'Seja bem-vindo(a)!', () => props.navigation.navigate('Profile'));
           }
           else {
             console.error('ID Token não encontrado:', result.authentication);
@@ -98,7 +107,7 @@ const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
       <Image source={require('../assets/PausaLogo.png')} style={{ width: 200, height: 200, marginBottom: 24 }} />    
       <View style={{ width: 300 }}>
-        <Button title="Login com Google" onPress={userLogin} />
+        <Button title="Login com Google" onPress={userGoogleLogin} />
         <Text style={{ marginTop: 16, fontWeight: 'bold', fontSize: 16, textAlign: 'center', marginBottom: 16 }}>Ou</Text>
         <Button title="Login com Email" onPress={() => setEmailLogin(true)} />
         {emailLogin && 
@@ -112,13 +121,19 @@ const Login = ({ navigation, setIsLoggedIn, isLoggedIn  }) => {
                 placeholder="Email"
               />
               <Text style={{ marginTop: 16, marginBottom: 16 }}>Senha:</Text>
-              <TextInput
-                value={senha}
-                onChangeText={setSenha}
-                style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 16 }}
-                placeholder="Senha"
-                secureTextEntry
-              />
+              <View style={{width: 300, flexDirection: 'row', alignItems: 'center' }}>
+                <TextInput
+                  value={senha}
+                  onChangeText={setSenha}
+                  style={{ height: 40, flex: 1, borderColor: 'gray', borderWidth: 1, marginRight: 8, marginBottom: 16 }}
+                  placeholder="Senha"
+                  onSubmitEditing={handleEmailLogin}
+                  secureTextEntry={!mostrarSenha}
+                />
+                <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)} style={{ justifyContent: 'center',paddingHorizontal: 5 }}>
+                  <Ionicons name={mostrarSenha ? 'eye-off' : 'eye'} size={24} color="gray" />
+                </TouchableOpacity>
+              </View>
               <Button title="Login" onPress={handleEmailLogin} />
             </View>
           )
